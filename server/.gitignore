@@ -3,3 +3,4 @@ dist
 .env
 client/dist
 server/dist
+/src/generated/prisma
