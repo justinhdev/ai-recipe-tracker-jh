@@ -66,29 +66,31 @@ export default function GenerateRecipe() {
     <>
       <Navbar />
       {
-        <div className="max-w-2xl mx-auto p-4">
+        <div className="max-w-2xl mx-auto p-4 dark:bg-gray-900 dark:text-white">
           <h2 className="text-2xl font-bold mb-4">Generate a Recipe</h2>
           <input
             type="text"
-            className="w-full p-2 border rounded mb-2"
+            className="w-full p-2 border rounded mb-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
             placeholder="Enter ingredients, separated by commas..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"
             onClick={handleSubmit}
             disabled={loading || !input.trim()}
           >
             {loading ? "Generating..." : "Generate Recipe"}
           </button>
 
-          {error && <p className="text-red-500 mt-2">{error}</p>}
+          {error && (
+            <p className="text-red-500 dark:text-red-400 mt-2">{error}</p>
+          )}
 
           {recipe && (
             <>
               {
-                <div className="mt-6 p-4 border rounded bg-white shadow">
+                <div className="mt-6 p-4 border rounded bg-white shadow dark:bg-gray-800 dark:border-gray-700">
                   <h3 className="text-xl font-semibold mb-2">{recipe.title}</h3>
                   <p className="mb-2">
                     <strong>Ingredients:</strong>{" "}
@@ -97,14 +99,14 @@ export default function GenerateRecipe() {
                   <p className="mb-2">
                     <strong>Instructions:</strong> {recipe.instructions}
                   </p>
-                  <p className="text-sm text-gray-600 mt-2">
+                  <p className="text-sm text-gray-600 mt-2 dark:text-gray-300">
                     Macros — {recipe.calories} kcal • {recipe.protein}g protein
                     • {recipe.fat}g fat • {recipe.carbs}g carbs
                   </p>
                 </div>
               }
               <button
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition"
                 onClick={handleSave}
                 disabled={saved}
               >
