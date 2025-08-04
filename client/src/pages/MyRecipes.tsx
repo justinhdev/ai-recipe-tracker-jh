@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import MacroChart from "../components/MacroChart";
 
 type Recipe = {
   id: number;
@@ -83,6 +84,13 @@ export default function MyRecipes() {
                   Macros — {recipe.calories} kcal • {recipe.protein}g protein •{" "}
                   {recipe.fat}g fat • {recipe.carbs}g carbs
                 </p>
+                <div className="mt-4">
+                  <MacroChart
+                    protein={recipe.protein}
+                    fat={recipe.fat}
+                    carbs={recipe.carbs}
+                  />
+                </div>
                 <button
                   className="mt-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                   onClick={() => handleDelete(recipe.id)}

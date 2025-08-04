@@ -9,7 +9,7 @@ export default function Register() {
     if (token) {
       navigate("/generate");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <div>

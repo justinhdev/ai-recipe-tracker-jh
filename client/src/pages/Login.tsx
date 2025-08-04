@@ -10,7 +10,7 @@ export default function Login() {
     if (token) {
       navigate("/generate");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <div>
