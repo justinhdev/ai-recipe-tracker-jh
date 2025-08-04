@@ -4,5 +4,8 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "sourceMap": true
+  "sourceMap": true,
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
 }

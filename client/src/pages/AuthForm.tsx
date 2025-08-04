@@ -1,0 +1,77 @@
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+type Props = {
+  isLogin?: boolean;
+};
+
+export default function AuthForm({ isLogin = false }: Props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    setError("");
+    const url = isLogin
+      ? "http://localhost:3000/api/auth/login"
+      : "http://localhost:3000/api/auth/register";
+
+    const payload = isLogin ? { email, password } : { name, email, password };
+
+    try {
+      const res = await axios.post(url, payload);
+      localStorage.setItem("token", res.data.token);
+      if (!isLogin && payload.name) {
+        localStorage.setItem("name", payload.name);
+      }
+      navigate("/generate");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Something went wrong");
+      } else {
+        setError("Something went wrong");
+      }
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto p-4 mt-12 bg-white shadow rounded">
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        {isLogin ? "Login" : "Register"}
+      </h2>
+      {!isLogin && (
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full p-2 border rounded mb-3"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      )}
+      <input
+        type="email"
+        placeholder="Email"
+        className="w-full p-2 border rounded mb-3"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        className="w-full p-2 border rounded mb-4"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        onClick={handleSubmit}
+      >
+        {isLogin ? "Login" : "Register"}
+      </button>
+      {error && <p className="text-red-500 mt-3 text-sm">{error}</p>}
+    </div>
+  );
+}

@@ -52,3 +52,33 @@ export const deleteRecipe = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to delete recipe" });
   }
 };
+
+export const createRecipe = async (req: Request, res: Response) => {
+  const userId = getUserIdFromToken(req);
+  const { title, ingredients, instructions, calories, protein, fat, carbs } =
+    req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const recipe = await prisma.recipe.create({
+      data: {
+        title,
+        ingredients,
+        instructions,
+        calories,
+        protein,
+        fat,
+        carbs,
+        userId,
+      },
+    });
+
+    res.status(201).json(recipe);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to save recipe" });
+  }
+};

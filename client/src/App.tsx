@@ -1,11 +1,9 @@
-import "./App.css";
+import GenerateRecipe from "./pages/GenerateRecipe";
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">
-        TailwindCSS is working 🎉
-      </h1>
+    <div className="min-h-screen bg-gray-100">
+      <GenerateRecipe />
     </div>
   );
 }
