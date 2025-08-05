@@ -38,7 +38,7 @@ export default function AuthForm({ isLogin = false }: Props) {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 mt-12 bg-white dark:bg-gray-900 shadow dark:shadow-lg rounded duration-300">
+    <div className="max-w-md mx-auto px-4 py-6 sm:mt-12 bg-white dark:bg-gray-900 shadow dark:shadow-lg rounded duration-300">
       <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white duration-300">
         {isLogin ? "Login" : "Register"}
       </h2>
@@ -46,7 +46,7 @@ export default function AuthForm({ isLogin = false }: Props) {
         <input
           type="text"
           placeholder="Name"
-          className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
+          className="w-full px-4 py-3 text-base border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -54,14 +54,14 @@ export default function AuthForm({ isLogin = false }: Props) {
       <input
         type="email"
         placeholder="Email"
-        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
+        className="w-full px-4 py-3 text-base border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
+        className="w-full px-4 py-3 text-base border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

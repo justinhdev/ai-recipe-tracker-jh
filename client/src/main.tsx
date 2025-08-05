@@ -7,12 +7,13 @@ import Register from "./pages/Register";
 import GenerateRecipe from "./pages/GenerateRecipe";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyRecipes from "./pages/MyRecipes";
+import Landing from "./pages/Landing";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route

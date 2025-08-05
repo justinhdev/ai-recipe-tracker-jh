@@ -26,9 +26,9 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-900 shadow-md dark:shadow-lg px-4 py-3 flex justify-between items-center duration-300">
+    <nav className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 px-4 py-3 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg duration-300">
       <div className="text-lg font-semibold text-blue-600">Recipe Forge</div>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
         <Link to="/generate" className={linkStyle("/generate")}>
           Generate
         </Link>
@@ -43,7 +43,8 @@ export default function Navbar() {
         <DarkToggle />
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition duration-300"
+          aria-label="Logout"
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition duration-300"
         >
           Logout
         </button>
