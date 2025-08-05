@@ -38,15 +38,15 @@ export default function AuthForm({ isLogin = false }: Props) {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 mt-12 bg-white dark:bg-gray-900 shadow dark:shadow-lg rounded">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">
+    <div className="max-w-md mx-auto p-4 mt-12 bg-white dark:bg-gray-900 shadow dark:shadow-lg rounded duration-300">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white duration-300">
         {isLogin ? "Login" : "Register"}
       </h2>
       {!isLogin && (
         <input
           type="text"
           placeholder="Name"
-          className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
+          className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -54,25 +54,27 @@ export default function AuthForm({ isLogin = false }: Props) {
       <input
         type="email"
         placeholder="Email"
-        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
+        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
+        className="w-full p-2 border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 duration-300"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <button
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition duration-300"
         onClick={handleSubmit}
       >
         {isLogin ? "Login" : "Register"}
       </button>
       {error && (
-        <p className="text-red-500 mt-3 text-sm dark:text-red-400">{error}</p>
+        <p className="text-red-500 mt-3 text-sm dark:text-red-400 duration-300">
+          {error}
+        </p>
       )}
     </div>
   );

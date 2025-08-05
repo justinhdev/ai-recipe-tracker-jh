@@ -34,7 +34,7 @@ export default function MacroChart({ protein, fat, carbs }: Props) {
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 rounded-lg shadow bg-white dark:bg-gray-900 dark:shadow-lg">
+    <div className="w-full max-w-md mx-auto p-4 rounded-lg shadow bg-white dark:bg-gray-900 dark:shadow-lg duration-300">
       <div className="w-full h-80">
         <ResponsiveContainer width="100%" height="100%">
           {chartType === "pie" ? (
@@ -87,7 +87,7 @@ export default function MacroChart({ protein, fat, carbs }: Props) {
           onClick={() =>
             setChartType((prev) => (prev === "pie" ? "bar" : "pie"))
           }
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition"
+          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition duration-300"
         >
           Switch to {chartType === "pie" ? "Bar" : "Pie"} Chart
         </button>

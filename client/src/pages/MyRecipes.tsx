@@ -58,14 +58,14 @@ export default function MyRecipes() {
   return (
     <>
       <Navbar />
-      <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+      <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen duration-300">
         <h2 className="text-2xl font-bold mb-4">My Saved Recipes</h2>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p className="text-red-500 dark:text-red-400">{error}</p>
+          <p className="text-red-500 dark:text-red-400 duration-300">{error}</p>
         ) : recipes.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500 dark:text-gray-400 duration-300">
             You haven't saved any recipes yet.
           </p>
         ) : (
@@ -73,16 +73,16 @@ export default function MyRecipes() {
             {recipes.map((recipe) => (
               <div
                 key={recipe.id}
-                className="p-4 border rounded shadow bg-white dark:bg-gray-800 dark:border-gray-700"
+                className="p-4 border rounded shadow bg-white dark:bg-gray-800 dark:border-gray-700 duration-300"
               >
                 <h3 className="text-xl font-semibold mb-1">{recipe.title}</h3>
-                <p className="text-sm mb-1 text-gray-600 dark:text-gray-300">
+                <p className="text-sm mb-1 text-gray-600 dark:text-gray-300 duration-300">
                   <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
                 </p>
                 <p className="text-sm mb-1">
                   <strong>Instructions:</strong> {recipe.instructions}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-600 dark:text-gray-300 duration-300">
                   Macros — {recipe.calories} kcal • {recipe.protein}g protein •{" "}
                   {recipe.fat}g fat • {recipe.carbs}g carbs
                 </p>
@@ -94,7 +94,7 @@ export default function MyRecipes() {
                   />
                 </div>
                 <button
-                  className="mt-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition"
+                  className="mt-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition duration-300"
                   onClick={() => handleDelete(recipe.id)}
                 >
                   Delete

@@ -22,11 +22,11 @@ export default function Navbar() {
     `text-sm font-medium px-3 py-1 rounded transition ${
       location.pathname === path
         ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-white"
-        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 duration-300"
     }`;
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-900 shadow-md dark:shadow-lg px-4 py-3 flex justify-between items-center">
+    <nav className="w-full bg-white dark:bg-gray-900 shadow-md dark:shadow-lg px-4 py-3 flex justify-between items-center duration-300">
       <div className="text-lg font-semibold text-blue-600">Recipe Forge</div>
       <div className="flex items-center gap-4">
         <Link to="/generate" className={linkStyle("/generate")}>
@@ -36,14 +36,14 @@ export default function Navbar() {
           My Recipes
         </Link>
         {username && (
-          <span className="text-sm text-gray-600 dark:text-gray-300">
+          <span className="text-sm text-gray-600 dark:text-gray-300 duration-300">
             Hi, {username}!
           </span>
         )}
         <DarkToggle />
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition"
+          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition duration-300"
         >
           Logout
         </button>
