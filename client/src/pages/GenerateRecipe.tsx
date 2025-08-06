@@ -16,7 +16,7 @@ type Recipe = {
 };
 
 export default function GenerateRecipe() {
-  const [input, setInput] = useState("");
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [error, setError] = useState("");
@@ -33,7 +33,7 @@ export default function GenerateRecipe() {
       const token = localStorage.getItem("token");
       const res = await axios.post(
         "http://localhost:3000/api/ai/generate",
-        { ingredients: input.split(",").map((i) => i.trim()) },
+        { ingredients: selectedIngredients },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRecipe(res.data);
@@ -85,13 +85,11 @@ export default function GenerateRecipe() {
           className="bg-white dark:bg-gray-800 rounded shadow p-6"
         >
           <h2 className="text-2xl font-bold mb-4">Generate a Recipe</h2>
-          <IngredientInput
-            onChange={(selected) => setInput(selected.join(", "))}
-          />
+          <IngredientInput onChange={setSelectedIngredients} />
           <button
             className="bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"
             onClick={handleSubmit}
-            disabled={loading || !input.trim()}
+            disabled={loading || selectedIngredients.length === 0}
           >
             {loading ? "Generating..." : "Generate Recipe"}
           </button>
