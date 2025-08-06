@@ -1,6 +1,7 @@
 import MacroChart from "./MacroChart";
 import { motion } from "framer-motion";
 import { getIcon } from "../utils/getIcon";
+import { X } from "lucide-react";
 
 type Recipe = {
   id: number;
@@ -54,7 +55,7 @@ export default function RecipeModal({ recipe, onClose, onDelete }: Props) {
           onClick={onClose}
           className="absolute top-2 right-3 text-xl text-gray-400 hover:text-gray-200"
         >
-          &times;
+          <X size={20} />
         </button>
 
         <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
@@ -70,14 +71,21 @@ export default function RecipeModal({ recipe, onClose, onDelete }: Props) {
           <p className="text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">
             Instructions:
           </p>
-          <ul className="list-decimal list-inside text-sm sm:text-base space-y-1 text-gray-700 dark:text-gray-300">
+          <div className="space-y-4">
             {instructions
               .split(/\d+\.\s*/)
               .filter((step) => step.trim() !== "")
               .map((step, i) => (
-                <li key={i}>{step.trim()}</li>
+                <div key={i}>
+                  <p className="font-semibold text-gray-900 dark:text-white mb-1">
+                    Step {i + 1}
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {step.trim()}
+                  </p>
+                </div>
               ))}
-          </ul>
+          </div>
         </div>
 
         <MacroChart protein={protein} fat={fat} carbs={carbs} />

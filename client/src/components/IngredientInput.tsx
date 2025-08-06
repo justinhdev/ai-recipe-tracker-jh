@@ -90,13 +90,23 @@ export default function IngredientInput({ onChange }: Props) {
             }`}
             title={
               isRecognized(item)
-                ? "Click to remove"
-                : "Not in ingredient list — will still be used"
+                ? undefined
+                : "Not in ingredient list — still usable, but may impact results"
             }
           >
             {item} ✕
           </span>
         ))}
+      </div>
+      <div className="mt-3 text-sm text-gray-600 dark:text-gray-400 flex flex-wrap gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-3 h-3 rounded-full bg-blue-300 dark:bg-blue-800"></span>
+          Recognized
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-3 h-3 rounded-full bg-yellow-300 dark:bg-yellow-800"></span>
+          Not Recognized
+        </div>
       </div>
     </div>
   );

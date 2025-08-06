@@ -76,29 +76,30 @@ export default function GenerateRecipe() {
           recipe ? "md:grid-cols-2" : "grid-cols-1 max-w-xl mx-auto"
         }`}
       >
-        {/* LEFT: Ingredient Input */}
         <motion.div
           layout
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 rounded shadow p-6"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-2xl mx-auto space-y-6"
         >
           <h2 className="text-2xl font-bold mb-4">Generate a Recipe</h2>
-          <IngredientInput onChange={setSelectedIngredients} />
-          <button
-            className="bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"
-            onClick={handleSubmit}
-            disabled={loading || selectedIngredients.length === 0}
-          >
-            {loading ? "Generating..." : "Generate Recipe"}
-          </button>
-          {error && (
-            <p className="text-red-500 dark:text-red-400 mt-3">{error}</p>
-          )}
+          <div className="space-y-4">
+            <IngredientInput onChange={setSelectedIngredients} />
+
+            {/* Error message */}
+            {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
+
+            <button
+              className="bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"
+              onClick={handleSubmit}
+              disabled={loading || selectedIngredients.length === 0}
+            >
+              {loading ? "Generating..." : "Generate Recipe"}
+            </button>
+          </div>
         </motion.div>
 
-        {/* RIGHT: Recipe Preview (with animation) */}
         <AnimatePresence>
           {recipe && (
             <motion.div
@@ -117,14 +118,21 @@ export default function GenerateRecipe() {
 
               <div className="mb-3">
                 <p className="font-medium mb-1">Instructions:</p>
-                <ul className="list-decimal list-inside space-y-1">
+                <div className="space-y-4">
                   {recipe.instructions
                     .split(/\d+\.\s*/)
                     .filter((step) => step.trim() !== "")
                     .map((step, i) => (
-                      <li key={i}>{step.trim()}</li>
+                      <div key={i}>
+                        <p className="font-semibold text-gray-900 dark:text-white mb-1">
+                          Step {i + 1}
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {step.trim()}
+                        </p>
+                      </div>
                     ))}
-                </ul>
+                </div>
               </div>
 
               <MacroChart
