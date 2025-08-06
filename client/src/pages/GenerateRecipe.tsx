@@ -3,6 +3,7 @@ import axios from "axios";
 import PageWrapper from "../components/PageWrapper";
 import MacroChart from "../components/MacroChart";
 import { motion, AnimatePresence } from "framer-motion";
+import IngredientInput from "../components/IngredientInput";
 
 type Recipe = {
   title: string;
@@ -84,13 +85,8 @@ export default function GenerateRecipe() {
           className="bg-white dark:bg-gray-800 rounded shadow p-6"
         >
           <h2 className="text-2xl font-bold mb-4">Generate a Recipe</h2>
-          <input
-            type="text"
-            className="w-full px-4 py-3 text-base border rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
-            placeholder="e.g. chicken, rice, broccoli"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={loading}
+          <IngredientInput
+            onChange={(selected) => setInput(selected.join(", "))}
           />
           <button
             className="bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"

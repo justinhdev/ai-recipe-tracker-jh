@@ -1,0 +1,103 @@
+import { useState, useMemo } from "react";
+import Fuse from "fuse.js";
+import { INGREDIENTS } from "../utils/ingredientList";
+
+type Props = {
+  onChange: (selected: string[]) => void;
+};
+
+export default function IngredientInput({ onChange }: Props) {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(INGREDIENTS, {
+        threshold: 0.3,
+        ignoreLocation: true,
+      }),
+    []
+  );
+
+  const addIngredient = (value: string) => {
+    const cleanValue = value.trim().toLowerCase();
+    if (!cleanValue || selected.includes(cleanValue)) return;
+
+    const updated = [...selected, cleanValue];
+    setSelected(updated);
+    onChange(updated);
+    setQuery("");
+  };
+
+  const removeIngredient = (ingredient: string) => {
+    const updated = selected.filter((i) => i !== ingredient);
+    setSelected(updated);
+    onChange(updated);
+  };
+
+  const isRecognized = (ingredient: string) =>
+    INGREDIENTS.includes(ingredient.toLowerCase());
+
+  const suggestions = query
+    ? fuse
+        .search(query)
+        .map((r) => r.item)
+        .filter((i) => !selected.includes(i))
+    : [];
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">
+        Ingredients
+      </label>
+      <input
+        type="text"
+        value={query}
+        placeholder="Start typing..."
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            addIngredient(query);
+            e.preventDefault();
+          }
+        }}
+        className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
+      />
+
+      {query && suggestions.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 border rounded shadow mt-1 max-h-40 overflow-y-auto z-10 relative">
+          {suggestions.map((item) => (
+            <div
+              key={item}
+              onClick={() => addIngredient(item)}
+              className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 mt-3">
+        {selected.map((item) => (
+          <span
+            key={item}
+            onClick={() => removeIngredient(item)}
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+              isRecognized(item)
+                ? "bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-white"
+                : "bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-300 border border-yellow-400"
+            }`}
+            title={
+              isRecognized(item)
+                ? "Click to remove"
+                : "Not in ingredient list — will still be used"
+            }
+          >
+            {item} ✕
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
