@@ -9,6 +9,7 @@ import { protect } from "../middleware/auth.middleware";
 const router = Router();
 
 router.get("/", protect, getUserRecipes);
+router.post("/", protect, createRecipe);
 router.delete("/:id", protect, deleteRecipe);
 
 export default router;

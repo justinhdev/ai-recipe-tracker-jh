@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { useRef } from "react";
 
 type Recipe = {
   title: string;
@@ -18,6 +19,7 @@ export default function GenerateRecipe() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const savingRef = useRef(false);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -44,7 +46,9 @@ export default function GenerateRecipe() {
   };
 
   const handleSave = async () => {
-    if (!recipe) return;
+    if (!recipe || savingRef.current) return;
+
+    savingRef.current = true;
 
     try {
       const token = localStorage.getItem("token");
@@ -59,6 +63,8 @@ export default function GenerateRecipe() {
         console.error("Unknown error:", err);
       }
       setError("Failed to save recipe");
+    } finally {
+      savingRef.current = false;
     }
   };
 

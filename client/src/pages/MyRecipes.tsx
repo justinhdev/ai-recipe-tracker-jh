@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
-import MacroChart from "../components/MacroChart";
+import RecipeCard from "../components/RecipeCard";
+import RecipeModal from "../components/RecipeModal";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Recipe = {
   id: number;
@@ -19,6 +21,7 @@ export default function MyRecipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const fetchRecipes = async () => {
     setLoading(true);
@@ -58,8 +61,9 @@ export default function MyRecipes() {
   return (
     <>
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
         <h2 className="text-2xl font-bold mb-4">My Saved Recipes</h2>
+
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -69,40 +73,32 @@ export default function MyRecipes() {
             You haven't saved any recipes yet.
           </p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-6 grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))] items-stretch">
             {recipes.map((recipe) => (
-              <div
+              <motion.div
                 key={recipe.id}
-                className="p-4 border rounded shadow bg-white dark:bg-gray-800 dark:border-gray-700 duration-300"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <h3 className="text-xl font-semibold mb-1">{recipe.title}</h3>
-                <p className="text-sm sm:text-base mb-1 text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                  <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
-                </p>
-                <p className="text-sm sm:text-base mb-1 text-gray-700 dark:text-gray-200 transition-colors duration-300">
-                  <strong>Instructions:</strong> {recipe.instructions}
-                </p>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                  Macros — {recipe.calories} kcal • {recipe.protein}g protein •{" "}
-                  {recipe.fat}g fat • {recipe.carbs}g carbs
-                </p>
-                <div className="mt-4 overflow-x-auto">
-                  <MacroChart
-                    protein={recipe.protein}
-                    fat={recipe.fat}
-                    carbs={recipe.carbs}
-                  />
-                </div>
-                <button
-                  className="w-full sm:w-auto mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 dark:hover:bg-red-400 text-sm transition duration-300"
-                  onClick={() => handleDelete(recipe.id)}
-                >
-                  Delete
-                </button>
-              </div>
+                <RecipeCard
+                  key={recipe.id}
+                  {...recipe}
+                  onSelect={(r) => setSelectedRecipe(r)}
+                />
+              </motion.div>
             ))}
           </div>
         )}
+        <AnimatePresence>
+          {selectedRecipe && (
+            <RecipeModal
+              recipe={selectedRecipe}
+              onClose={() => setSelectedRecipe(null)}
+              onDelete={handleDelete}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
