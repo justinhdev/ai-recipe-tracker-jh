@@ -7,7 +7,6 @@ const openai = new OpenAI({
 export const getRecipeFromIngredients = async (ingredients: string[]) => {
   const prompt = `
 You are a helpful nutritionist and recipe creator.
-Only use real food ingredients. If an ingredient is not edible or not a recognized food item, ignore it.
 Create a healthy recipe using the following ingredients: ${ingredients.join(", ")}.
 
 Respond in the following JSON format:

@@ -1,18 +1,13 @@
-import { useState } from "react";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
   ResponsiveContainer,
   Legend,
 } from "recharts";
 
-type Props = {
+type MacroChartProps = {
   protein: number;
   fat: number;
   carbs: number;
@@ -24,9 +19,7 @@ const COLORS = {
   Carbs: "#10B981",
 };
 
-export default function MacroChart({ protein, fat, carbs }: Props) {
-  const [chartType, setChartType] = useState<"pie" | "bar">("pie");
-
+export default function MacroChart({ protein, fat, carbs }: MacroChartProps) {
   const data = [
     { name: "Protein", value: protein },
     { name: "Fat", value: fat },
@@ -37,59 +30,41 @@ export default function MacroChart({ protein, fat, carbs }: Props) {
     <div className="w-full max-w-md mx-auto p-4 rounded-lg shadow bg-transparent dark:shadow-lg transition-colors duration-300">
       <div className="w-full h-[300px] sm:h-[350px] md:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          {chartType === "pie" ? (
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                innerRadius={20}
-                label={({ name, value }) => `${name} ${value}g`}
-                labelLine={false}
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[entry.name as keyof typeof COLORS]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value: number, name: string) => [`${value}g`, name]}
-              />
-              <Legend layout="horizontal" verticalAlign="bottom" />
-            </PieChart>
-          ) : (
-            <BarChart data={data}>
-              <XAxis dataKey="name" tickFormatter={(name) => `${name} (g)`} />
-              <YAxis />
-              <Tooltip
-                formatter={(value: number, name: string) => [`${value}g`, name]}
-              />
-              <Bar dataKey="value">
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[entry.name as keyof typeof COLORS]}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          )}
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              innerRadius={20}
+              label={({ name, value }) => `${name} ${value}g`}
+              labelLine={false}
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[entry.name as keyof typeof COLORS]}
+                />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number, name: string) => [`${value}g`, name]}
+              contentStyle={{
+                backgroundColor: "#1F2937", // dark gray bg (Tailwind gray-800)
+                border: "none",
+                borderRadius: "0.5rem",
+                color: "white",
+              }}
+              itemStyle={{
+                color: "inherit", // will use default or theme color
+                fontWeight: 500,
+              }}
+            />
+            <Legend layout="horizontal" verticalAlign="bottom" />
+          </PieChart>
         </ResponsiveContainer>
-      </div>
-      <div className="mt-4 text-center">
-        <button
-          onClick={() =>
-            setChartType((prev) => (prev === "pie" ? "bar" : "pie"))
-          }
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition duration-300"
-        >
-          Switch to {chartType === "pie" ? "Bar" : "Pie"} Chart
-        </button>
       </div>
     </div>
   );

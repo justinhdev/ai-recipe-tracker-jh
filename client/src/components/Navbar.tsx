@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link
           to="/"
-          className="flex items-center gap-2 text-lg font-semibold text-blue-600 group hover:cursor-pointer"
+          className="flex items-center gap-2 text-lg text-blue-600 group hover:cursor-pointer"
         >
           <Anvil
             size={20}

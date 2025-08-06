@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import axios from "axios";
 import PageWrapper from "../components/PageWrapper";
 import MacroChart from "../components/MacroChart";
@@ -48,7 +48,7 @@ export default function GenerateRecipe() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!recipe || savingRef.current) return;
 
     savingRef.current = true;
@@ -65,19 +65,88 @@ export default function GenerateRecipe() {
     } finally {
       savingRef.current = false;
     }
-  };
+  }, [recipe]);
+
+  const renderedRecipe = useMemo(() => {
+    if (!recipe) return null;
+
+    return (
+      <motion.div
+        key={recipe.title}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+        transition={{ duration: 0.4 }}
+        className="bg-white dark:bg-gray-800 rounded shadow p-6 text-sm sm:text-base"
+      >
+        <h3 className="text-xl font-semibold mb-2">{recipe.title}</h3>
+
+        <p className="mb-2">
+          <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
+        </p>
+
+        <div className="mb-3">
+          <p className="font-medium mb-1">Instructions:</p>
+          <div className="space-y-4">
+            {recipe.instructions
+              .split(/\d+\.\s*/)
+              .filter((step) => step.trim() !== "")
+              .map((step, i) => (
+                <div key={i}>
+                  <p className="font-semibold text-gray-900 dark:text-white mb-1">
+                    Step {i + 1}
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {step.trim()}
+                  </p>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        <MacroChart
+          protein={recipe.protein}
+          fat={recipe.fat}
+          carbs={recipe.carbs}
+        />
+
+        <p className="text-xs text-gray-600 dark:text-gray-300 text-center mt-2">
+          {recipe.calories} kcal • {recipe.protein}g protein • {recipe.fat}g fat
+          • {recipe.carbs}g carbs
+        </p>
+
+        <div className="mt-4">
+          <button
+            onClick={handleSave}
+            disabled={saved}
+            className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition"
+          >
+            {saved ? "Recipe Saved ✅" : "Save Recipe"}
+          </button>
+
+          {saved && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-green-600 dark:text-green-400 mt-2 text-sm"
+            >
+              Your recipe has been saved!
+            </motion.p>
+          )}
+        </div>
+      </motion.div>
+    );
+  }, [recipe, saved, handleSave]);
 
   return (
     <PageWrapper>
-      <motion.div
-        layout
-        transition={{ duration: 0.4 }}
+      <div
         className={`grid gap-8 items-start ${
           recipe ? "md:grid-cols-2" : "grid-cols-1 max-w-xl mx-auto"
         }`}
       >
         <motion.div
-          layout
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -87,11 +156,10 @@ export default function GenerateRecipe() {
           <div className="space-y-4">
             <IngredientInput onChange={setSelectedIngredients} />
 
-            {/* Error message */}
             {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
 
             <button
-              className="bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 transition"
+              className={`bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 ${loading ? "cursor-wait" : "cursor-pointer"}`}
               onClick={handleSubmit}
               disabled={loading || selectedIngredients.length === 0}
             >
@@ -100,76 +168,8 @@ export default function GenerateRecipe() {
           </div>
         </motion.div>
 
-        <AnimatePresence>
-          {recipe && (
-            <motion.div
-              layout
-              initial={{ opacity: 0, y: 20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded shadow p-6 text-sm sm:text-base"
-            >
-              <h3 className="text-xl font-semibold mb-2">{recipe.title}</h3>
-
-              <p className="mb-2">
-                <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
-              </p>
-
-              <div className="mb-3">
-                <p className="font-medium mb-1">Instructions:</p>
-                <div className="space-y-4">
-                  {recipe.instructions
-                    .split(/\d+\.\s*/)
-                    .filter((step) => step.trim() !== "")
-                    .map((step, i) => (
-                      <div key={i}>
-                        <p className="font-semibold text-gray-900 dark:text-white mb-1">
-                          Step {i + 1}
-                        </p>
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {step.trim()}
-                        </p>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              <MacroChart
-                protein={recipe.protein}
-                fat={recipe.fat}
-                carbs={recipe.carbs}
-              />
-
-              <p className="text-xs text-gray-600 dark:text-gray-300 text-center mt-2">
-                {recipe.calories} kcal • {recipe.protein}g protein •{" "}
-                {recipe.fat}g fat • {recipe.carbs}g carbs
-              </p>
-
-              <div className="mt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saved}
-                  className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition"
-                >
-                  {saved ? "Recipe Saved ✅" : "Save Recipe"}
-                </button>
-
-                {saved && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-green-600 dark:text-green-400 mt-2 text-sm"
-                  >
-                    Your recipe has been saved!
-                  </motion.p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        <AnimatePresence>{renderedRecipe}</AnimatePresence>
+      </div>
     </PageWrapper>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Fuse from "fuse.js";
 import { INGREDIENTS } from "../utils/ingredientList";
 
@@ -9,6 +9,8 @@ type Props = {
 export default function IngredientInput({ onChange }: Props) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const itemRefs = useRef<HTMLDivElement[]>([]);
 
   const fuse = useMemo(
     () =>
@@ -45,6 +47,20 @@ export default function IngredientInput({ onChange }: Props) {
         .filter((i) => !selected.includes(i))
     : [];
 
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [query, suggestions.length]);
+
+  useEffect(() => {
+    const el = itemRefs.current[highlightedIndex];
+    if (el) {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [highlightedIndex]);
+
   return (
     <div>
       <label className="block text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">
@@ -56,27 +72,51 @@ export default function IngredientInput({ onChange }: Props) {
         placeholder="Start typing..."
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            addIngredient(query);
+          if (e.key === "ArrowDown") {
             e.preventDefault();
+            setHighlightedIndex((prev) =>
+              prev < suggestions.length - 1 ? prev + 1 : 0
+            );
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setHighlightedIndex((prev) =>
+              prev > 0 ? prev - 1 : suggestions.length - 1
+            );
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            const selected = suggestions[highlightedIndex] || query;
+            addIngredient(selected);
           }
         }}
         className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
       />
 
-      {query && suggestions.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 border rounded shadow mt-1 max-h-40 overflow-y-auto z-10 relative">
-          {suggestions.map((item) => (
-            <div
-              key={item}
-              onClick={() => addIngredient(item)}
-              className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-            >
-              {item}
+      {query &&
+        suggestions.length > 0 &&
+        (() => {
+          itemRefs.current = [];
+
+          return (
+            <div className="bg-white dark:bg-gray-800 border rounded shadow mt-1 max-h-40 overflow-y-auto z-10 relative">
+              {suggestions.map((item, index) => (
+                <div
+                  key={item}
+                  ref={(el) => {
+                    if (el) itemRefs.current[index] = el;
+                  }}
+                  onClick={() => addIngredient(item)}
+                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                    index === highlightedIndex
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }`}
+                >
+                  {item}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })()}
 
       <div className="flex flex-wrap gap-2 mt-3">
         {selected.map((item) => (
