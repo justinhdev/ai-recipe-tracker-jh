@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Navbar from "../components/Navbar";
+import PageWrapper from "../components/PageWrapper";
 import RecipeCard from "../components/RecipeCard";
 import RecipeModal from "../components/RecipeModal";
 import { AnimatePresence, motion } from "framer-motion";
@@ -59,47 +59,41 @@ export default function MyRecipes() {
   }, []);
 
   return (
-    <>
-      <Navbar />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
-        <h2 className="text-2xl font-bold mb-4">My Saved Recipes</h2>
+    <PageWrapper>
+      <h2 className="text-2xl font-bold mb-4">My Saved Recipes</h2>
 
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p className="text-red-500 dark:text-red-400 duration-300">{error}</p>
-        ) : recipes.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 duration-300">
-            You haven't saved any recipes yet.
-          </p>
-        ) : (
-          <div className="grid gap-6 grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))] items-stretch">
-            {recipes.map((recipe) => (
-              <motion.div
-                key={recipe.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <RecipeCard
-                  key={recipe.id}
-                  {...recipe}
-                  onSelect={(r) => setSelectedRecipe(r)}
-                />
-              </motion.div>
-            ))}
-          </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500 dark:text-red-400">{error}</p>
+      ) : recipes.length === 0 ? (
+        <p className="text-gray-500 dark:text-gray-400">
+          You haven't saved any recipes yet.
+        </p>
+      ) : (
+        <div className="grid gap-6 grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))] items-stretch">
+          {recipes.map((recipe) => (
+            <motion.div
+              key={recipe.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <RecipeCard {...recipe} onSelect={(r) => setSelectedRecipe(r)} />
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {selectedRecipe && (
+          <RecipeModal
+            recipe={selectedRecipe}
+            onClose={() => setSelectedRecipe(null)}
+            onDelete={handleDelete}
+          />
         )}
-        <AnimatePresence>
-          {selectedRecipe && (
-            <RecipeModal
-              recipe={selectedRecipe}
-              onClose={() => setSelectedRecipe(null)}
-              onDelete={handleDelete}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-    </>
+      </AnimatePresence>
+    </PageWrapper>
   );
 }
