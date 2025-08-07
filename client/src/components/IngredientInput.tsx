@@ -10,6 +10,9 @@ export default function IngredientInput({ onChange }: Props) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [hasNavigated, setHasNavigated] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const itemRefs = useRef<HTMLDivElement[]>([]);
 
   const fuse = useMemo(
@@ -21,6 +24,25 @@ export default function IngredientInput({ onChange }: Props) {
     []
   );
 
+  const suggestions = query
+    ? fuse
+        .search(query)
+        .map((r) => r.item)
+        .filter((i) => !selected.includes(i))
+    : [];
+
+  useEffect(() => {
+    setHighlightedIndex(0);
+    setHasNavigated(false);
+  }, [query]);
+
+  useEffect(() => {
+    const el = itemRefs.current[highlightedIndex];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [highlightedIndex]);
+
   const addIngredient = (value: string) => {
     const cleanValue = value.trim().toLowerCase();
     if (!cleanValue || selected.includes(cleanValue)) return;
@@ -29,6 +51,8 @@ export default function IngredientInput({ onChange }: Props) {
     setSelected(updated);
     onChange(updated);
     setQuery("");
+    setDropdownOpen(false);
+    setHasNavigated(false);
   };
 
   const removeIngredient = (ingredient: string) => {
@@ -40,27 +64,6 @@ export default function IngredientInput({ onChange }: Props) {
   const isRecognized = (ingredient: string) =>
     INGREDIENTS.includes(ingredient.toLowerCase());
 
-  const suggestions = query
-    ? fuse
-        .search(query)
-        .map((r) => r.item)
-        .filter((i) => !selected.includes(i))
-    : [];
-
-  useEffect(() => {
-    setHighlightedIndex(0);
-  }, [query, suggestions.length]);
-
-  useEffect(() => {
-    const el = itemRefs.current[highlightedIndex];
-    if (el) {
-      el.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }
-  }, [highlightedIndex]);
-
   return (
     <div>
       <label className="block text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">
@@ -70,53 +73,65 @@ export default function IngredientInput({ onChange }: Props) {
         type="text"
         value={query}
         placeholder="Start typing..."
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setDropdownOpen(true);
+        }}
         onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
+          if (e.key === "ArrowDown" || e.key === "Tab") {
             e.preventDefault();
+            if (suggestions.length === 0) return;
+            setDropdownOpen(true);
+            setHasNavigated(true);
             setHighlightedIndex((prev) =>
               prev < suggestions.length - 1 ? prev + 1 : 0
             );
           } else if (e.key === "ArrowUp") {
             e.preventDefault();
+            if (suggestions.length === 0) return;
+            setDropdownOpen(true);
+            setHasNavigated(true);
             setHighlightedIndex((prev) =>
               prev > 0 ? prev - 1 : suggestions.length - 1
             );
+          } else if (e.key === "Escape") {
+            setDropdownOpen(false);
+            setHasNavigated(false);
           } else if (e.key === "Enter") {
             e.preventDefault();
-            const selected = suggestions[highlightedIndex] || query;
-            addIngredient(selected);
+            const valueToAdd =
+              hasNavigated && suggestions.length > 0
+                ? suggestions[highlightedIndex]
+                : query;
+            addIngredient(valueToAdd);
           }
         }}
         className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400"
       />
 
-      {query &&
-        suggestions.length > 0 &&
-        (() => {
-          itemRefs.current = [];
-
-          return (
-            <div className="bg-white dark:bg-gray-800 border rounded shadow mt-1 max-h-40 overflow-y-auto z-10 relative">
-              {suggestions.map((item, index) => (
-                <div
-                  key={item}
-                  ref={(el) => {
-                    if (el) itemRefs.current[index] = el;
-                  }}
-                  onClick={() => addIngredient(item)}
-                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                    index === highlightedIndex
-                      ? "bg-gray-100 dark:bg-gray-700"
-                      : ""
-                  }`}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+      {dropdownOpen && suggestions.length > 0 && (
+        <>
+          {(itemRefs.current = [])}
+          <div className="bg-white dark:bg-gray-800 border rounded shadow mt-1 max-h-40 overflow-y-auto z-10 relative">
+            {suggestions.map((item, index) => (
+              <div
+                key={item}
+                ref={(el) => {
+                  if (el) itemRefs.current[index] = el;
+                }}
+                onClick={() => addIngredient(item)}
+                className={`px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                  index === highlightedIndex
+                    ? "bg-gray-100 dark:bg-gray-700"
+                    : ""
+                }`}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="flex flex-wrap gap-2 mt-3">
         {selected.map((item) => (
@@ -138,6 +153,7 @@ export default function IngredientInput({ onChange }: Props) {
           </span>
         ))}
       </div>
+
       <div className="mt-3 text-sm text-gray-600 dark:text-gray-400 flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
           <span className="inline-block w-3 h-3 rounded-full bg-blue-300 dark:bg-blue-800"></span>

@@ -4,6 +4,7 @@ import PageWrapper from "../components/PageWrapper";
 import MacroChart from "../components/MacroChart";
 import { motion, AnimatePresence } from "framer-motion";
 import IngredientInput from "../components/IngredientInput";
+import { BarChart3 } from "lucide-react";
 
 type Recipe = {
   title: string;
@@ -21,6 +22,7 @@ export default function GenerateRecipe() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [showMacros, setShowMacros] = useState(false);
   const savingRef = useRef(false);
 
   const handleSubmit = async () => {
@@ -34,7 +36,11 @@ export default function GenerateRecipe() {
       const res = await axios.post(
         "http://localhost:3000/api/ai/generate",
         { ingredients: selectedIngredients },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setRecipe(res.data);
     } catch (err: unknown) {
@@ -70,6 +76,10 @@ export default function GenerateRecipe() {
   const renderedRecipe = useMemo(() => {
     if (!recipe) return null;
 
+    const stepMatches = recipe.instructions.match(
+      /Step \d+\..*?(?=Step \d+\.|$)/g
+    );
+
     return (
       <motion.div
         key={recipe.title}
@@ -77,51 +87,97 @@ export default function GenerateRecipe() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.95 }}
         transition={{ duration: 0.4 }}
-        className="bg-white dark:bg-gray-800 rounded shadow p-6 text-sm sm:text-base"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 text-sm sm:text-base"
       >
         <h3 className="text-xl font-semibold mb-2">{recipe.title}</h3>
 
-        <p className="mb-2">
-          <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
-        </p>
-
-        <div className="mb-3">
-          <p className="font-medium mb-1">Instructions:</p>
-          <div className="space-y-4">
-            {recipe.instructions
-              .split(/\d+\.\s*/)
-              .filter((step) => step.trim() !== "")
-              .map((step, i) => (
-                <div key={i}>
-                  <p className="font-semibold text-gray-900 dark:text-white mb-1">
-                    Step {i + 1}
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {step.trim()}
-                  </p>
-                </div>
-              ))}
-          </div>
+        <h4 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-2">
+          Ingredients
+        </h4>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {recipe.ingredients.map((item, idx) => (
+            <span
+              key={idx}
+              className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-sm transition-colors duration-200 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-default"
+            >
+              {item}
+            </span>
+          ))}
         </div>
 
-        <MacroChart
-          protein={recipe.protein}
-          fat={recipe.fat}
-          carbs={recipe.carbs}
-        />
+        <h4 className="text-base font-semibold text-gray-800 dark:text-gray-100 mt-4 mb-2">
+          Instructions
+        </h4>
+        <div className="space-y-2">
+          {stepMatches?.map((step, i) => {
+            const splitIndex = step.indexOf(". ");
+            const stepText = step.slice(splitIndex + 2);
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: i * 0.05 }}
+                className="flex items-start gap-3 rounded-md bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-3 py-2"
+              >
+                <div className="flex-none w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-white text-xs flex items-center justify-center">
+                  {i + 1}
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {stepText}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
 
-        <p className="text-xs text-gray-600 dark:text-gray-300 text-center mt-2">
-          {recipe.calories} kcal • {recipe.protein}g protein • {recipe.fat}g fat
-          • {recipe.carbs}g carbs
-        </p>
+        <div className="mt-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-1">
+            {recipe.calories} kcal • {recipe.protein}g protein • {recipe.fat}g
+            fat • {recipe.carbs}g carbs
+          </p>
+
+          <div className="text-center mt-2">
+            <button
+              onClick={() => setShowMacros((prev) => !prev)}
+              className="inline-flex items-center gap-1 text-sm text-blue-500 dark:text-blue-400 hover:bg-blue-500 hover:text-white px-3 py-1 rounded-full transition cursor-pointer"
+              title={
+                showMacros ? "Hide Nutrition Chart" : "Show Nutrition Chart"
+              }
+            >
+              <BarChart3 size={18} />
+              <span>{showMacros ? "Hide Chart" : "Show Chart"}</span>
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showMacros && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="mt-4"
+              >
+                <MacroChart
+                  protein={recipe.protein}
+                  fat={recipe.fat}
+                  carbs={recipe.carbs}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div className="mt-4">
           <button
             onClick={handleSave}
             disabled={saved}
-            className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 transition"
+            className={`bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200 ${
+              saved ? "cursor-not-allowed opacity-70" : "cursor-pointer"
+            }`}
           >
-            {saved ? "Recipe Saved ✅" : "Save Recipe"}
+            {saved ? "Recipe Saved" : "Save Recipe"}
           </button>
 
           {saved && (
@@ -137,7 +193,7 @@ export default function GenerateRecipe() {
         </div>
       </motion.div>
     );
-  }, [recipe, saved, handleSave]);
+  }, [recipe, showMacros, handleSave, saved]);
 
   return (
     <PageWrapper>
@@ -159,7 +215,7 @@ export default function GenerateRecipe() {
             {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
 
             <button
-              className={`bg-blue-600 text-white w-full sm:w-auto px-4 py-3 text-base rounded transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 ${loading ? "cursor-wait" : "cursor-pointer"}`}
+              className={`bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 ${loading ? "cursor-wait" : "cursor-pointer"}`}
               onClick={handleSubmit}
               disabled={loading || selectedIngredients.length === 0}
             >

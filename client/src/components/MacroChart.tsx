@@ -41,6 +41,7 @@ export default function MacroChart({ protein, fat, carbs }: MacroChartProps) {
               innerRadius={20}
               label={({ name, value }) => `${name} ${value}g`}
               labelLine={false}
+              animationDuration={1000}
             >
               {data.map((entry, index) => (
                 <Cell

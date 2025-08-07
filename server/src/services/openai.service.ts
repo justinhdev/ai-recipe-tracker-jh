@@ -6,14 +6,15 @@ const openai = new OpenAI({
 
 export const getRecipeFromIngredients = async (ingredients: string[]) => {
   const prompt = `
-You are a helpful nutritionist and recipe creator.
-Create a healthy recipe using the following ingredients: ${ingredients.join(", ")}.
+You are a professional chef and nutritionist. Based on the provided ingredients, create a healthy, realistic recipe in **strict JSON format** — no extra text.
 
-Respond in the following JSON format:
+FORMAT:
 {
   "title": "Recipe Name",
-  "ingredients": [ "ingredient 1", "ingredient 2", ... ],
-  "instructions": "Step-by-step instructions here.",
+  "ingredients": [
+    "exact amounts and units for each ingredient (e.g., 1 cup milk, 2 tbsp olive oil)"
+  ],
+  "instructions": "Step 1. Full sentence. Step 2. Full sentence. Step 3. ...",
   "macros": {
     "calories": number,
     "protein": number,
@@ -21,12 +22,22 @@ Respond in the following JSON format:
     "carbs": number
   }
 }
+
+RECIPE REQUIREMENTS:
+- Write **6 to 8 detailed steps** with heat levels, cooking times, and prep techniques.
+- Each step must start with: **Step X.** followed by a full, clear sentence.
+- Use only the provided ingredients plus pantry staples (salt, pepper, oil, water).
+- Instructions must be inside one string with no line breaks or Markdown.
+- Output must be **valid JSON only** — no commentary or formatting.
+
+INGREDIENTS: ${ingredients.join(", ")}
 `;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-turbo",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.7,
+    max_tokens: 1000,
   });
 
   const content = response.choices[0]?.message?.content;
