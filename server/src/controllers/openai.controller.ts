@@ -3,7 +3,15 @@ import { getRecipeFromIngredients } from "../services/openai.service";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 export const generateRecipe = async (req: Request, res: Response) => {
-  const { ingredients } = req.body;
+  const {
+    ingredients,
+    servings,
+    diet,
+    cuisine,
+    mealType,
+    bravery,
+    macroPreference,
+  } = req.body;
   const userId = getUserIdFromToken(req);
 
   if (!userId) {
@@ -12,17 +20,25 @@ export const generateRecipe = async (req: Request, res: Response) => {
 
   function sanitizeInstructions(instructions: string): string {
     return instructions
-      .replace(/\n+/g, " ") // remove line breaks
-      .replace(/\bStep\b(?!\s*\d+\.)/g, "") // remove lone "Step"
-      .replace(/\s{2,}/g, " ") // remove double spaces
-      .replace(/Step\s+(\d)([^\d])/g, "Step $1.$2") // fix missing periods
-      .replace(/\.?\s*Step\s+(\d)\./g, " Step $1.") // ensure step markers are clean
-      .replace(/\.\s*\./g, ".") // remove double dots
+      .replace(/\n+/g, " ")
+      .replace(/\bStep\b(?!\s*\d+\.)/g, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/Step\s+(\d)([^\d])/g, "Step $1.$2")
+      .replace(/\.?\s*Step\s+(\d)\./g, " Step $1.")
+      .replace(/\.\s*\./g, ".")
       .trim();
   }
 
   try {
-    const recipe = await getRecipeFromIngredients(ingredients);
+    const recipe = await getRecipeFromIngredients({
+      ingredients,
+      servings,
+      diet,
+      cuisine,
+      mealType,
+      bravery,
+      macroPreference,
+    });
 
     res.json({
       title: recipe.title,

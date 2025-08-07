@@ -3,23 +3,22 @@ import Fuse from "fuse.js";
 import { INGREDIENTS } from "../utils/ingredientList";
 
 type Props = {
+  value: string[];
   onChange: (selected: string[]) => void;
 };
 
-export default function IngredientInput({ onChange }: Props) {
+export default function IngredientInput({ value, onChange }: Props) {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<string[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [hasNavigated, setHasNavigated] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<HTMLDivElement[]>([]);
 
   const fuse = useMemo(
     () =>
       new Fuse(INGREDIENTS, {
         threshold: 0.3,
-        ignoreLocation: true,
       }),
     []
   );
@@ -28,12 +27,30 @@ export default function IngredientInput({ onChange }: Props) {
     ? fuse
         .search(query)
         .map((r) => r.item)
-        .filter((i) => !selected.includes(i))
+        .filter((i) => !value.includes(i))
     : [];
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  useEffect(() => {
     setHighlightedIndex(0);
-    setHasNavigated(false);
   }, [query]);
 
   useEffect(() => {
@@ -43,21 +60,18 @@ export default function IngredientInput({ onChange }: Props) {
     }
   }, [highlightedIndex]);
 
-  const addIngredient = (value: string) => {
-    const cleanValue = value.trim().toLowerCase();
-    if (!cleanValue || selected.includes(cleanValue)) return;
+  const addIngredient = (ingredientValue: string) => {
+    const cleanValue = ingredientValue.trim().toLowerCase();
+    if (!cleanValue || value.includes(cleanValue)) return;
 
-    const updated = [...selected, cleanValue];
-    setSelected(updated);
+    const updated = [...value, cleanValue];
     onChange(updated);
     setQuery("");
     setDropdownOpen(false);
-    setHasNavigated(false);
   };
 
   const removeIngredient = (ingredient: string) => {
-    const updated = selected.filter((i) => i !== ingredient);
-    setSelected(updated);
+    const updated = value.filter((i) => i !== ingredient);
     onChange(updated);
   };
 
@@ -65,7 +79,7 @@ export default function IngredientInput({ onChange }: Props) {
     INGREDIENTS.includes(ingredient.toLowerCase());
 
   return (
-    <div>
+    <div ref={containerRef}>
       <label className="block text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">
         Ingredients
       </label>
@@ -78,29 +92,40 @@ export default function IngredientInput({ onChange }: Props) {
           setDropdownOpen(true);
         }}
         onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "Tab") {
+          const goUp = () => {
             e.preventDefault();
             if (suggestions.length === 0) return;
             setDropdownOpen(true);
-            setHasNavigated(true);
-            setHighlightedIndex((prev) =>
-              prev < suggestions.length - 1 ? prev + 1 : 0
-            );
-          } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            if (suggestions.length === 0) return;
-            setDropdownOpen(true);
-            setHasNavigated(true);
             setHighlightedIndex((prev) =>
               prev > 0 ? prev - 1 : suggestions.length - 1
             );
+          };
+
+          const goDown = () => {
+            e.preventDefault();
+            if (suggestions.length === 0) return;
+            setDropdownOpen(true);
+            setHighlightedIndex((prev) =>
+              prev < suggestions.length - 1 ? prev + 1 : 0
+            );
+          };
+
+          if (e.key === "ArrowUp") {
+            goUp();
+          } else if (e.key === "ArrowDown") {
+            goDown();
+          } else if (e.key === "Tab") {
+            if (e.shiftKey) {
+              goUp();
+            } else {
+              goDown();
+            }
           } else if (e.key === "Escape") {
             setDropdownOpen(false);
-            setHasNavigated(false);
           } else if (e.key === "Enter") {
             e.preventDefault();
             const valueToAdd =
-              hasNavigated && suggestions.length > 0
+              dropdownOpen && suggestions.length > 0
                 ? suggestions[highlightedIndex]
                 : query;
             addIngredient(valueToAdd);
@@ -134,19 +159,19 @@ export default function IngredientInput({ onChange }: Props) {
       )}
 
       <div className="flex flex-wrap gap-2 mt-3">
-        {selected.map((item) => (
+        {value.map((item) => (
           <span
             key={item}
             onClick={() => removeIngredient(item)}
-            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+            className={`cursor-pointer rounded-full px-3 py-1 text-sm transition-colors duration-200 ${
               isRecognized(item)
-                ? "bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-white"
-                : "bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-300 border border-yellow-400"
+                ? "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-800 dark:text-white dark:hover:bg-blue-700"
+                : "border border-yellow-400 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-300 dark:hover:bg-yellow-700"
             }`}
             title={
               isRecognized(item)
-                ? undefined
-                : "Not in ingredient list — still usable, but may impact results"
+                ? "Click to remove"
+                : "Custom ingredient (click to remove)"
             }
           >
             {item} ✕
