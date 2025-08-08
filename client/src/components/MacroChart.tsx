@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -7,30 +8,29 @@ import {
   Legend,
 } from "recharts";
 
-type MacroChartProps = {
-  protein: number;
-  fat: number;
-  carbs: number;
-};
+type MacroChartProps = { protein: number; fat: number; carbs: number };
 
 const COLORS = {
   Protein: "#3B82F6",
   Fat: "#EF4444",
   Carbs: "#10B981",
-};
+} as const;
 
-export default function MacroChart({ protein, fat, carbs }: MacroChartProps) {
-  const data = [
-    { name: "Protein", value: protein },
-    { name: "Fat", value: fat },
-    { name: "Carbs", value: carbs },
-  ];
+function MacroChartInner({ protein, fat, carbs }: MacroChartProps) {
+  const data = useMemo(
+    () => [
+      { name: "Protein", value: protein },
+      { name: "Fat", value: fat },
+      { name: "Carbs", value: carbs },
+    ],
+    [protein, fat, carbs]
+  );
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 rounded-lg shadow bg-transparent dark:shadow-lg transition-colors duration-300">
+    <div className="w-full max-w-md mx-auto">
       <div className="w-full h-[300px] sm:h-[350px] md:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <Pie
               data={data}
               dataKey="value"
@@ -53,15 +53,12 @@ export default function MacroChart({ protein, fat, carbs }: MacroChartProps) {
             <Tooltip
               formatter={(value: number, name: string) => [`${value}g`, name]}
               contentStyle={{
-                backgroundColor: "#1F2937", // dark gray bg (Tailwind gray-800)
+                backgroundColor: "#1F2937",
                 border: "none",
                 borderRadius: "0.5rem",
                 color: "white",
               }}
-              itemStyle={{
-                color: "inherit", // will use default or theme color
-                fontWeight: 500,
-              }}
+              itemStyle={{ color: "inherit", fontWeight: 500 }}
             />
             <Legend layout="horizontal" verticalAlign="bottom" />
           </PieChart>
@@ -70,3 +67,5 @@ export default function MacroChart({ protein, fat, carbs }: MacroChartProps) {
     </div>
   );
 }
+
+export default React.memo(MacroChartInner);

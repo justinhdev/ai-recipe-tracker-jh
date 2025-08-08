@@ -63,7 +63,6 @@ export default function Navbar() {
           >
             Help
           </button>
-          <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
           <div className="w-px h-4 bg-gray-400 opacity-30" />
 

@@ -1,62 +1,43 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import PageWrapper from "../components/PageWrapper";
 import RecipeCard from "../components/RecipeCard";
 import RecipeModal from "../components/RecipeModal";
 import { AnimatePresence, motion } from "framer-motion";
-
-type Recipe = {
-  id: number;
-  title: string;
-  ingredients: string[];
-  instructions: string;
-  calories: number;
-  protein: number;
-  fat: number;
-  carbs: number;
-  createdAt: string;
-};
+import { useRecipeActions } from "../hooks/useRecipeActions";
+import { toMessage } from "../utils/error";
+import type { Recipe } from "../types/recipe";
 
 export default function MyRecipes() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<Required<Recipe>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [selected, setSelected] = useState<Required<Recipe> | null>(null);
 
-  const fetchRecipes = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:3000/api/recipes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setRecipes(res.data);
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Failed to fetch recipes");
-      } else {
-        setError("Unexpected error occurred");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const token = localStorage.getItem("token");
-    try {
-      await axios.delete(`http://localhost:3000/api/recipes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setRecipes((prev) => prev.filter((r) => r.id !== id));
-    } catch (err) {
-      console.error("Delete failed", err);
-    }
-  };
+  const { fetchAll, remove } = useRecipeActions();
 
   useEffect(() => {
-    fetchRecipes();
-  }, []);
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await fetchAll();
+        setRecipes(data);
+      } catch (e: unknown) {
+        setError(toMessage(e, "Failed to fetch recipes"));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [fetchAll]);
+
+  const handleDelete = async (id: number) => {
+    try {
+      await remove(id);
+      setRecipes((prev) => prev.filter((r) => r.id !== id));
+      setSelected(null);
+    } catch (e: unknown) {
+      setError(toMessage(e, "Failed to delete recipe"));
+    }
+  };
 
   return (
     <PageWrapper>
@@ -79,17 +60,20 @@ export default function MyRecipes() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <RecipeCard {...recipe} onSelect={(r) => setSelectedRecipe(r)} />
+              <RecipeCard
+                {...recipe}
+                onSelect={(r) => setSelected(r as Required<Recipe>)}
+              />
             </motion.div>
           ))}
         </div>
       )}
 
       <AnimatePresence>
-        {selectedRecipe && (
+        {selected && (
           <RecipeModal
-            recipe={selectedRecipe}
-            onClose={() => setSelectedRecipe(null)}
+            recipe={selected}
+            onClose={() => setSelected(null)}
             onDelete={handleDelete}
           />
         )}
